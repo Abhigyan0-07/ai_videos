@@ -6,12 +6,27 @@ import os
 import asyncio
 import logging
 
-from ..schemas import GenerateRequest, VideoScript
-from ..services.gemini import gemini_service
-from ..services.image import image_generator
-from ..services.tts import voice_generator
-from ..services.video import video_composer
-from ..config import settings
+from app.schemas import GenerateRequest, VideoScript
+from app.services.gemini import gemini_service
+from app.services.ollama import ollama_service
+from app.services.image import image_generator
+from app.services.local_image import local_image_generator
+from app.services.tts import voice_generator
+from app.services.video import video_composer
+from app.config import settings
+
+# Service Selection logic
+# Ideally this would be dependent on a "mode" setting or request param
+USE_LOCAL_AI = os.getenv("USE_LOCAL_AI", "false").lower() == "true"
+
+if USE_LOCAL_AI:
+    print("Using LOCAL AI Services (Ollama + SD WebUI)")
+    script_service = ollama_service
+    image_service = local_image_generator
+else:
+    print("Using CLOUD AI Services (Gemini + HuggingFace)")
+    script_service = gemini_service
+    image_service = image_generator
 
 router = APIRouter()
 
@@ -32,7 +47,7 @@ async def process_video_generation(job_id: str, request: GenerateRequest):
         
         # 1. Generate Script
         print(f"[{job_id}] Generating script...")
-        script = await gemini_service.generate_script(request.topic, request.video_style, request.duration)
+        script = await script_service.generate_script(request.topic, request.video_style, request.duration)
         jobs[job_id]["progress"] = 15
         
         # Working directory for this job
@@ -61,7 +76,7 @@ async def process_video_generation(job_id: str, request: GenerateRequest):
                 # Run Image and Audio in parallel
                 results = await asyncio.gather(
                     voice_generator.generate_audio(scene.narration, audio_path),
-                    image_generator.generate_image(scene.visual_description, image_path),
+                    image_service.generate_image(scene.visual_description, image_path),
                     return_exceptions=True
                 )
                 

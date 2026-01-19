@@ -3,8 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
-from .app.routers import generate
-from .app.config import settings
+from app.routers import generate
+from app.config import settings
 
 load_dotenv()
 

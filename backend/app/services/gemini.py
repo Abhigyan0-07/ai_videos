@@ -1,7 +1,7 @@
 import google.generativeai as genai
 import json
-from .schemas import VideoScript
-from .config import settings
+from app.schemas import VideoScript
+from app.config import settings
 
 class GeminiService:
     def __init__(self):
@@ -9,7 +9,7 @@ class GeminiService:
             print("Warning: GEMINI_API_KEY is not set.")
         else:
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            self.model = genai.GenerativeModel('gemini-1.5-flash')
+            self.model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
     async def generate_script(self, topic: str, style: str, duration: int) -> VideoScript:
         # Estimate scene count: approx 5 seconds per scene

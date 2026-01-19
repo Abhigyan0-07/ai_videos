@@ -1,6 +1,6 @@
 import edge_tts
 import os
-from .config import settings
+from app.config import settings
 
 class VoiceGenerator:
     def __init__(self):

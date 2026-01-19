@@ -2,7 +2,7 @@ import httpx
 import os
 import asyncio
 from typing import Optional
-from .config import settings
+from app.config import settings
 
 # Using SDXL Base 1.0 for better quality free inference
 # Alternatively use "stabilityai/stable-diffusion-2-1" or "runwayml/stable-diffusion-v1-5"
